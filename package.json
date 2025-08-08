@@ -1,0 +1,9 @@
+{
+    "name": "laravel-api",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "echo 'PHP API - no build needed'",
+        "dev": "php artisan serve"
+    }
+}
