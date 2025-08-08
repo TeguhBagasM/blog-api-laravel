@@ -1,9 +1,10 @@
 {
-    "name": "laravel-api",
+    "name": "blog-api",
     "private": true,
-    "type": "module",
     "scripts": {
-        "build": "echo 'PHP API - no build needed'",
-        "dev": "php artisan serve"
-    }
+        "build": "echo 'API ready'",
+        "install": "echo 'No npm dependencies needed'"
+    },
+    "dependencies": {},
+    "devDependencies": {}
 }

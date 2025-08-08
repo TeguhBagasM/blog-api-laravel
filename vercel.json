@@ -1,7 +1,7 @@
 {
     "version": 2,
     "functions": {
-        "api/**/*.php": {
+        "api/index.php": {
             "runtime": "vercel-php@0.6.0"
         }
     },
@@ -11,14 +11,8 @@
             "dest": "/api/index.php"
         }
     ],
-    "build": {
-        "env": {
-            "COMPOSER_ALLOW_SUPERUSER": "1"
-        }
-    },
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "false"
-    },
-    "installCommand": "composer install --no-dev --optimize-autoloader"
+    }
 }
