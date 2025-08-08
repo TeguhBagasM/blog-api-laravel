@@ -5,118 +5,108 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
-class PostController extends Controller
+class PostController extends BaseController // Extend BaseController
 {
-    // GET /api/posts - Ambil semua artikel
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $posts = Post::all();
+        try {
+            $query = Post::query();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data artikel berhasil diambil',
-            'data' => $posts
-        ]);
+            // Logic pencarian (sama seperti sebelumnya)
+            if ($request->has('search')) {
+                $search = $request->search;
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
+            }
+
+            if ($request->has('published')) {
+                $published = $request->boolean('published');
+                $query->where('is_published', $published);
+            }
+
+            // Pagination - default 10 per page
+            $perPage = $request->get('per_page', 10);
+            $posts = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data artikel berhasil diambil',
+                'data' => $posts->items(), // Data artikel
+                'pagination' => [
+                    'current_page' => $posts->currentPage(),
+                    'per_page' => $posts->perPage(),
+                    'total' => $posts->total(),
+                    'last_page' => $posts->lastPage(),
+                    'from' => $posts->firstItem(),
+                    'to' => $posts->lastItem()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->sendError('Terjadi kesalahan saat mengambil data', [], 500);
+        }
     }
 
-    // GET /api/posts/{id} - Ambil satu artikel
     public function show($id): JsonResponse
     {
-        $post = Post::find($id);
+        try {
+            $post = Post::find($id);
 
-        if (!$post) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Artikel tidak ditemukan'
-            ], 404);
+            if (!$post) {
+                return $this->sendError('Artikel tidak ditemukan', [], 404);
+            }
+
+            return $this->sendResponse($post, 'Detail artikel berhasil diambil');
+
+        } catch (\Exception $e) {
+            return $this->sendError('Terjadi kesalahan saat mengambil detail artikel', [], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Detail artikel berhasil diambil',
-            'data' => $post
-        ]);
     }
 
-    // POST /api/posts - Buat artikel baru
     public function store(Request $request): JsonResponse
     {
-        // Validasi input
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'author' => 'required|string|max:255',
-            'is_published' => 'boolean'
-        ]);
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'content' => 'required|string',
+                'author' => 'required|string|max:255',
+                'is_published' => 'boolean'
+            ]);
 
-        // Buat artikel baru
-        $post = Post::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'author' => $request->author,
-            'is_published' => $request->is_published ?? false
-        ]);
+            $post = Post::create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'author' => $request->author,
+                'is_published' => $request->is_published ?? false
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Artikel berhasil dibuat',
-            'data' => $post
-        ], 201);
-    }
+            return $this->sendResponse($post, 'Artikel berhasil dibuat', 201);
 
-    // PUT /api/posts/{id} - Update artikel
-    public function update(Request $request, $id): JsonResponse
-    {
-        $post = Post::find($id);
-
-        if (!$post) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Artikel tidak ditemukan'
-            ], 404);
+        } catch (ValidationException $e) {
+            return $this->sendError('Data tidak valid', $e->errors(), 422);
+        } catch (\Exception $e) {
+            return $this->sendError('Terjadi kesalahan saat membuat artikel', [], 500);
         }
-
-        // Validasi input
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'author' => 'required|string|max:255',
-            'is_published' => 'boolean'
-        ]);
-
-        // Update artikel
-        $post->update([
-            'title' => $request->title,
-            'content' => $request->content,
-            'author' => $request->author,
-            'is_published' => $request->is_published ?? $post->is_published
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Artikel berhasil diperbarui',
-            'data' => $post
-        ]);
     }
 
-    // DELETE /api/posts/{id} - Hapus artikel
+    // Update method destroy juga
     public function destroy($id): JsonResponse
     {
-        $post = Post::find($id);
+        try {
+            $post = Post::find($id);
 
-        if (!$post) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Artikel tidak ditemukan'
-            ], 404);
+            if (!$post) {
+                return $this->sendError('Artikel tidak ditemukan', [], 404);
+            }
+
+            $post->delete();
+
+            return $this->sendResponse([], 'Artikel berhasil dihapus');
+
+        } catch (\Exception $e) {
+            return $this->sendError('Terjadi kesalahan saat menghapus artikel', [], 500);
         }
-
-        $post->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Artikel berhasil dihapus'
-        ]);
     }
 }

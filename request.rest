@@ -1,0 +1,42 @@
+### Get all blog posts
+GET http://localhost:8000/api/posts
+Accept: application/json
+
+### Get all blog posts with pagination
+GET http://localhost:8000/api/posts?page=1
+
+### Get all blog posts with search query
+GET http://localhost:8000/api/posts?search=artikel
+Accept: application/json
+
+### Get single blog post by ID
+GET http://localhost:8000/api/posts/12
+Accept: application/json
+
+### Create a new blog post
+POST http://localhost:8000/api/posts
+Content-Type: application/json
+Accept: application/json
+
+{
+    "title": "Belajar Laravel API",
+    "content": "Ini adalah konten dari post pertama saya.",
+    "author": "Bagas",
+    "is_published": true
+}
+
+### Update blog post
+PUT http://localhost:8000/api/posts/12
+Content-Type: application/json
+Accept: application/json
+
+{
+    "title": "Belajar Laravel API (Update)",
+    "content": "Konten ini sudah diperbarui.",
+    "author": "Bagas",
+    "is_published": false
+}
+
+### Delete blog post
+DELETE http://localhost:8000/api/posts/12
+Accept: application/json
