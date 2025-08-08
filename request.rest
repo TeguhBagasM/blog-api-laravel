@@ -1,5 +1,5 @@
 ### Get all blog posts
-GET http://localhost:8000/api/posts
+GET https://blog-api-laravel.vercel.app/api/posts
 Accept: application/json
 
 ### Get all blog posts with pagination
