@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "framework": "null",
+    "framework": "vite",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.6.0"
@@ -15,7 +15,7 @@
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
-        "APP_URL": "",
+        "APP_URL": "https://blog-api-laravel.vercel.app/",
         "APP_KEY": "base64:eVAcUdvLW7FBLiru/Xk3A7pe9fUlv+rCqP7Id1IZxIk=",
         "DB_CONNECTION": "mysql",
         "DB_HOST": "0jp6c0.h.filess.io",
